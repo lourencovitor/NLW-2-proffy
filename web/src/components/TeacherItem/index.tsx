@@ -3,40 +3,47 @@ import React from "react";
 import whatsappIcon from "../../assets/images/icons/whatsapp.svg";
 
 import "./styles.css";
+import api from "../../services/api";
 
-interface TeacherItemProps {
-  avatar: string;
-  name: string;
+export interface Teacher {
+  id: number;
   subject: string;
-  subtitle?: string;
-  description: string;
-  price: number;
-  phone: string;
+  cost: number;
+  name: string;
+  avatar: string;
+  whatsapp: string;
+  bio: string;
+}
+interface TeacherItemProps {
+  teacher: Teacher;
 }
 
-const TeacherItem: React.FC<TeacherItemProps> = (props) => {
+const TeacherItem: React.FC<TeacherItemProps> = ({ teacher }) => {
+  function createNerConnection() {
+    api.post("connections", {
+      user_id: teacher.id,
+    });
+  }
   return (
     <article className="teacher-item">
       <header>
-        <img src={props.avatar} alt="" />
+        <img src={teacher.avatar} alt="avatar" />
         <div>
-          <strong>{props.name}</strong>
-          <span>{props.subject}</span>
+          <strong>{teacher.name}</strong>
+          <span>{teacher.subject}</span>
         </div>
       </header>
-      <p>
-        {props.subtitle}
-        <br />
-        <br />
-        {props.description}
-      </p>
+      <p>{teacher.bio}</p>
 
       <footer>
         <p>
           Preço/hora:
-          <strong>R$ {props.price}</strong>
+          <strong>R$ {teacher.cost}</strong>
         </p>
-        <a href={`http://wa.me/${props.phone}`}>
+        <a
+          onClick={createNerConnection}
+          href={`http://wa.me/${teacher.whatsapp}`}
+        >
           <button type="button">
             <img src={whatsappIcon} alt="Whatsapp" />
             Entrar em contato

@@ -1,42 +1,81 @@
-import React from "react";
+import React, { useState, FormEvent } from "react";
 
 import PageHeader from "../../components/PageHeader";
 
 import "./styles.css";
-import TeacherItem from "../../components/TeacherItem";
+import TeacherItem, { Teacher } from "../../components/TeacherItem";
+import Input from "../../components/Input";
+import Select from "../../components/Select";
+import api from "../../services/api";
 
 function TeacherList() {
+  const [teachers, setTeachers] = useState([]);
+  const [subject, setSubject] = useState("");
+  const [week_day, setWeek_day] = useState("");
+  const [time, setTime] = useState("");
+
+  async function searchTeachers(e: FormEvent) {
+    e.preventDefault();
+    const response = await api.get("classes", {
+      params: {
+        subject,
+        week_day,
+        time,
+      },
+    });
+    setTeachers(response.data);
+  }
+
   return (
     <div id="page-teacher-list" className="container">
       <PageHeader title="Esse são os proffys disponíveis">
-        <form id="search-teachers">
-          <div className="input-block">
-            <label htmlFor="subject">Matéria</label>
-            <input type="text" id="subject" />
-          </div>
-
-          <div className="input-block">
-            <label htmlFor="week_day">Dia da semana</label>
-            <input type="text" id="week_day" />
-          </div>
-
-          <div className="input-block">
-            <label htmlFor="time">Horário</label>
-            <input type="text" id="time" />
-          </div>
+        <form id="search-teachers" onSubmit={searchTeachers}>
+          <Select
+            name="subject"
+            label="Matéria"
+            value={subject}
+            onChange={(e) => setSubject(e.target.value)}
+            options={[
+              { value: "Artes", label: "Artes" },
+              { value: "Biologia", label: "Biologia" },
+              { value: "Ciêcias", label: "Ciêcias" },
+              { value: "ED.Fisíca", label: "ED.Fisíca" },
+              { value: "Português", label: "Português" },
+              { value: "Matemática", label: "Matemática" },
+              { value: "Geogragia", label: "Geogragia" },
+              { value: "Química", label: "Química" },
+            ]}
+          />
+          <Select
+            name="week_day"
+            label="Dia da semana"
+            value={week_day}
+            onChange={(e) => setWeek_day(e.target.value)}
+            options={[
+              { value: "0", label: "Domingo" },
+              { value: "1", label: "Segunda-feira" },
+              { value: "2", label: "Terça-feira" },
+              { value: "3", label: "Quarta-feira" },
+              { value: "4", label: "Quinta-feira" },
+              { value: "5", label: "Sexta-feira" },
+              { value: "6", label: "Sábado" },
+            ]}
+          />
+          <Input
+            type="time"
+            name="time"
+            label="Horário"
+            value={time}
+            onChange={(e) => setTime(e.target.value)}
+          />
+          <button type="submit">Buscar</button>
         </form>
       </PageHeader>
 
       <main>
-        <TeacherItem
-          avatar="https://avatars1.githubusercontent.com/u/50245199?s=460&u=891a98f4de4c3983d03a3e4ce3052c6fe248f958&v=4"
-          name="Vitor Silva"
-          subject="Programação"
-          subtitle="Estuda programação desde seus 16 anos."
-          description="Gosta de ensinar e aprender coisas novas, neste momento está focado em repassar seus conhecimentos em diversas tecnologias."
-          price={100}
-          phone="5511946752573"
-        />
+        {teachers.map((teacher: Teacher) => {
+          return <TeacherItem key={teacher.id} teacher={teacher} />;
+        })}
       </main>
     </div>
   );
